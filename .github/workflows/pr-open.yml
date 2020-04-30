@@ -4,7 +4,7 @@ on:
     types: [assigned, opened, synchronize, reopened]
 jobs:
   merge-PR:
-    if: "contains(github.event.head_commit.message, '/deploy')"
+#    if: "contains(github.event.head_commit.message, 'deploy')"
     runs-on: ubuntu-latest
     steps:
       - name: Dump GitHub context
