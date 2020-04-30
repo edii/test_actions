@@ -3,6 +3,12 @@
 # chmod u+x scripts/git_add_infra.sh
 set -o errexit
 
+## Install yq
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+sudo add-apt-repository ppa:rmescandon/yq
+sudo apt update
+sudo apt install yq -y
+
 GIT_REPOSITORY="edii/test_repo"
 #GIT_USER_EMAIL="edii87shadow@gmail.com"
 #GIT_USER_NAME="edii"
@@ -62,7 +68,13 @@ cd k8s/releases
 
 RELEASE_DIR=dev-${BRANCH}
 RELEASE_FILE_NAME=heals-tetris-${BRANCH}-api.yaml
-RELEASE_PATCH=./${RELEASE_DIR}/${RELEASE_FILE_NAME}
+RELEASE_PATCH=${RELEASE_DIR}/${RELEASE_FILE_NAME}
+TEMPLATE_FILE_PATCH=dev/heals-tetris-api.yaml
+
+if [ ! -f ./${TEMPLATE_FILE_PATCH} ]; then
+    echo "Not found template file [${TEMPLATE_FILE_PATCH}]."
+    exit 1
+fi
 
 if [ ! -d ./${RELEASE_DIR} ]; then
     mkdir ./${RELEASE_DIR}
@@ -75,94 +87,18 @@ if [ -f ./${RELEASE_PATCH} ]; then
 fi
 
 if [ ! -f ./${RELEASE_PATCH} ]; then
+  echo -e "Copy file template"
+  cp -f ./${TEMPLATE_FILE_PATCH} ./${RELEASE_PATCH}
+
   echo -e "Generating a ${RELEASE_PATCH} file"
 
-  # Generate the file
-  cat > ./${RELEASE_PATCH} <<EOL
----
-apiVersion: helm.fluxcd.io/v1
-kind: HelmRelease
-metadata:
-  name: tetris-${BRANCH}
-  namespace: dev
-  annotations:
-    fluxcd.io/automated: "true"
-    filter.fluxcd.io/chart-image: global:${BRANCH}_${SHA}
-spec:
-  releaseName: heals-tetris-${BRANCH}-scheduler
-  chart:
-    git: ssh://git@github.com/edenlabllc/heals.infra
-    ref: master
-    path: k8s/tetris-api-scheduler
-  values:
-    replicaCount: 1
-    image:
-      repository: 437202414690.dkr.ecr.eu-north-1.amazonaws.com/heals.tetris.api
-      tag: ${BRANCH}_${SHA}
-      pullPolicy: IfNotPresent
-    imagePullSecrets: []
-    nameOverride: ""
-    fullnameOverride: "tetris-${BRANCH}"
-    serviceAccount:
-      create: true
-      annotations: {}
-      name:
-    podSecurityContext: {}
-    securityContext: {}
-    service:
-      type: ClusterIP
-      port: 80
-    ingress:
-      enabled: true
-      headers:
-        enabled: true
-        route: "${BRANCH}"
-      auth: false
-      host: "dev.heals.edenlab.tech"
-      annotations: {}
-    resources:
-      limits:
-        cpu: 1000m
-        memory: 1280Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    mongodb:
-      url: "mongodb://tetris_development:4%25jvrK%26pq6.KthbEN77wv.R8n9h7t8tBY8C%5BD%25%2C6uF%28%5DfmJW%5Bu@mongodb-client-lb.mongodb.svc.cluster.local:27017/tetris_development?replicaSet=rs0"
-    mysql:
-      hostname: "heals-uat-db.mysql.database.azure.com"
-      username: "healsuser01@heals-uat-db"
-      password: "healscn@2019"
-      dbname: "heals"
-    redis:
-      url: "redis-master.redis.svc.cluster.local"
-      db: "0"
-      cron_queue_name: "cron_dev"
-    fhir:
-      api:
-        url: "http://fhir-api.dev.svc.cluster.local"
-    cms:
-      api:
-        url: "http://api-uat.healshealthcare.com/internal"
-    tracing:
-      JAEGER_ENDPOINT: http://jaeger-dev-collector.observability.svc.cluster.local:14268/api/traces
-    id_namespaces:
-      LOCATION_NAMESPACE: 9f04a0b1-e10a-4121-b3bc-bb7156cb35cc
-      ORGANIZATION_NAMESPACE: e53f3d57-5277-404e-8f59-40fd30093f02
-      ORGANIZATION_INSURER_NAMESPACE: 14b0586f-1e18-4070-bcc3-51b061784390 s
-      HEALTHCARE_SERVICE_NAMESPACE: a3ed6828-88c6-449f-9ea8-c840ddca85cf
-      LOCATION_DISTRICT_NAMESPACE: b914e1aa-10b8-4f3f-888a-bdc74d7ac10c
-      LOCATION_REGION_NAMESPACE: ea96207e-64ac-4247-976d-3a9857ce357f
-      LOCATION_AREA_NAMESPACE: 0fbd9311-8ad7-4551-90e4-1a2a3e1adaba
-      LOCATION_CITY_NAMESPACE: 6c486bce-1bd3-453b-91fc-bb6c8e08dc46
-      PRACTITIONER_NAMESPACE: a70f5ddc-b124-4e48-a61c-c4189216784a
-      PRACTITIONER_ROLE_NAMESPACE: 46f8eb56-75f4-4642-8bc0-65e206b740b1
-      SCHEDULE_NAMESPACE: 2c6a8aac-be05-424d-bbbd-c5134b46a91a
-      GROUP_NAMESPACE: 8aca7688-9699-4f67-8525-c936e003dc49
-EOL
+  yq w -i ./${RELEASE_PATCH} metadata.name tetris-${BRANCH}
+  yq w -i ./${RELEASE_PATCH} 'metadata.annotations."filter.fluxcd.io/chart-image"' global:${BRANCH}_${SHA}
+  yq w -i ./${RELEASE_PATCH} spec.releaseName heals-tetris-${BRANCH}-scheduler
+  yq w -i ./${RELEASE_PATCH} spec.values.image.tag ${BRANCH}_${SHA}
+  yq w -i ./${RELEASE_PATCH} spec.values.fullnameOverride tetris-${BRANCH}
+  yq w -i ./${RELEASE_PATCH} spec.values.ingress.headers.enabled true
+  yq w -i ./${RELEASE_PATCH} spec.values.ingress.headers.route ${BRANCH}
 fi
 
 function gitPush() {
