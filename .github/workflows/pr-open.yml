@@ -4,10 +4,15 @@ on:
     types: [assigned, opened, synchronize, reopened]
 jobs:
   opened-PR:
-    if: "contains(github.event.head_commit.message, 'deploy')"
+#    if: "contains(github.event.head_commit.message, 'deploy')"
+#    if: "contains(github.event.head_commit.message, 'deploy')"
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
+        id: log
+        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
       - name: Dump GitHub context
+        if: "!contains(steps.log.outputs.message, 'deploy')"
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           BASE_BRANCH: ${{ github.base_ref }}
