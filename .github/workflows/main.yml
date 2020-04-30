@@ -14,5 +14,6 @@ jobs:
           ref: ${{ github.ref }}
       - name: "echo message"
         run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
+          #BRANCH_NAME=${GITHUB_REF#refs/heads/}
           echo "Ok RUN! [${BRANCH_NAME}]"
