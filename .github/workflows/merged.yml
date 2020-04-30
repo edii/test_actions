@@ -13,5 +13,6 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
-          echo "\n$GITHUB_CONTEXT"
-          echo "\nBASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH}]"
+          echo "$GITHUB_CONTEXT"
+          HEAD_BRANCH_REF=$(echo ${HEAD_BRANCH#refs/heads/} | sed 's/\//_/g')
+          echo "BASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH_REF}]"
