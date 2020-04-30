@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Remove in git infra manifest
         env:
+          GITHUB_TOKEN: ${{secrets.PAT_FOR_PUSH}}
           COMMIT_MSG: "Clear branch manifest"
           BRANCH_NAME: ${{ github.head_ref }}
         run: ./.github/workflows/scripts/git_rm_infra.sh
