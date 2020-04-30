@@ -11,7 +11,7 @@ jobs:
         id: log
         run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
       - name: show commit message
-        run: echo $steps.log.outputs.message
+        run: echo $(git log --no-merges -1 --oneline)
       - name: Dump GitHub context
         if: "contains(steps.log.outputs.message, 'deploy')"
         env:
