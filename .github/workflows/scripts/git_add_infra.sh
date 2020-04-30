@@ -4,14 +4,15 @@
 set -o errexit
 
 ## Install yq
+echo "Install package YQ..."
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
 sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 
 GIT_REPOSITORY="edii/test_repo"
-#GIT_USER_EMAIL="edii87shadow@gmail.com"
-#GIT_USER_NAME="edii"
+GIT_USER_EMAIL="edii87shadow@gmail.com"
+GIT_USER_NAME="edii"
 
 if [[  -z "${COMMIT_MSG}" ]]; then
   MSG="Release Bot: manifest"
@@ -44,8 +45,8 @@ fi
 BRANCH=$(echo ${BRANCH_NAME#refs/heads/} | sed 's/\//-/g')
 
 # Hard-code user configuration
-git config --global user.email "edii87shadow@gmail.com"
-git config --global user.name "edii"
+git config --global user.email "${GIT_USER_EMAIL}"
+git config --global user.name "${GIT_USER_NAME}"
 
 # Auto merged changed
 git config --global alias.merge-n-push '!f() { git pull --no-edit && git push; }; f'
@@ -62,8 +63,7 @@ cd ./heals.infra
 echo "Git clone ${GIT_REPOSITORY}..."
 
 echo "GITHUB_TOKEN: [${GITHUB_TOKEN}]."
-#git clone -b master https://_:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git .
-git clone -b master https://_:${GIT_TOKEN}@github.com/edii/test_repo.git .
+git clone -b master https://_:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git .
 cd k8s/releases
 
 RELEASE_DIR=dev-${BRANCH}
