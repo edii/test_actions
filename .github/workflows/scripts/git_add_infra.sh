@@ -54,6 +54,8 @@ mkdir heals.infra
 cd ./heals.infra
 
 echo "Git clone ${GIT_REPOSITORY}..."
+
+echo "GITHUB_TOKEN: [${GITHUB_TOKEN}]."
 #git clone -b master https://_:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git .
 git clone -b master https://_:${GIT_TOKEN}@github.com/edii/test_repo.git .
 cd k8s/releases
