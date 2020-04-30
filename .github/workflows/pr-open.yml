@@ -33,5 +33,5 @@ jobs:
         env:
           COMMIT_MSG: "Generated new manifest"
           SHA: ${{ steps.vars.outputs.sha_short }}
-          BRANCH_NAME: ${{github.ref}}
+          BRANCH_NAME: ${{ github.head_ref }}
         run: ./.github/workflows/scripts/git_add_infra.sh
