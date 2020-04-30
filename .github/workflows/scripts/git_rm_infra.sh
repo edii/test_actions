@@ -4,8 +4,8 @@
 set -o errexit
 
 GIT_REPOSITORY="edenlabllc/heals.infra"
-GIT_USER_EMAIL="noreply@edenlab.com.ua"
-GIT_USER_NAME="Release Bot"
+GIT_USER_EMAIL="edii87shadow@gmail.com"
+GIT_USER_NAME="edii"
 
 if [[  -z "${COMMIT_MSG}" ]]; then
   MSG="Release Bot: manifest"
@@ -33,8 +33,8 @@ fi
 BRANCH=$(echo ${BRANCH_NAME#refs/heads/} | sed 's/\//-/g')
 
 # Hard-code user configuration
-git config user.email ${GIT_USER_EMAIL}
-git config user.name ${GIT_USER_NAME}
+git config --global user.email ${GIT_USER_EMAIL}
+git config --global user.name ${GIT_USER_NAME}
 
 # Auto merged changed
 git config --global alias.merge-n-push '!f() { git pull --no-edit && git push; }; f'
