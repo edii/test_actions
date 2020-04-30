@@ -7,6 +7,10 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v1"
+        with:
+          ref: ${{ github.ref }}
       - name: Remove in git infra manifest
         env:
           GITHUB_TOKEN: ${{secrets.PAT_FOR_PUSH}}
