@@ -1,0 +1,18 @@
+name: Merge PR
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+jobs:
+  merge-PR:
+    if: "github.event.pull_request.opened == true && contains(github.event.comment.body, '/deploy')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+          HEAD_BRANCH_REF=$(echo ${HEAD_BRANCH#refs/heads/} | sed 's/\//_/g')
+          echo "BASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH_REF}]"
