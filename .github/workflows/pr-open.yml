@@ -20,6 +20,11 @@ jobs:
       - name: "Checkout source code"
         uses: "actions/checkout@v1"
         with:
+          repository: "edii/test_repo"
+          token: ${{secrets.GITHUB_TOKEN}}
+      - name: "Checkout source code helm repo"
+        uses: "actions/checkout@v2"
+        with:
           ref: ${{ github.ref }}
       - name: Get git commit shortsha
         id: vars
