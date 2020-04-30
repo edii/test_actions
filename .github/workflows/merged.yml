@@ -10,4 +10,8 @@ jobs:
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "\n$GITHUB_CONTEXT"
+          echo "\nBASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH}]"
