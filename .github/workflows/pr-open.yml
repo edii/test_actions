@@ -6,11 +6,14 @@ jobs:
   opened-PR:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: Get log commit
         id: log
         run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
+      - name: show commit message
+        run: echo ${steps.log.outputs.message}
       - name: Dump GitHub context
-        if: "!contains(steps.log.outputs.message, 'deploy')"
+        if: "contains(steps.log.outputs.message, 'deploy')"
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           BASE_BRANCH: ${{ github.base_ref }}
