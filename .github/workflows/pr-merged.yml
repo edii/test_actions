@@ -7,12 +7,8 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Dump GitHub context
+      - name: Remove in git infra manifest
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          HEAD_BRANCH: ${{ github.head_ref }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-          HEAD_BRANCH_REF=$(echo ${HEAD_BRANCH#refs/heads/} | sed 's/\//_/g')
-          echo "BASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH_REF}]"
+          COMMIT_MSG: "Clear branch manifest"
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: ./.github/workflows/scripts/git_rm_infra.sh

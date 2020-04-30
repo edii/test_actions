@@ -3,22 +3,35 @@ on:
   pull_request:
     types: [assigned, opened, synchronize, reopened]
 jobs:
-  opened-PR:
+  ecr-build-push:
+    name: Git pull_request opened
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: "Checkout source code"
+        uses: "actions/checkout@v1"
+        with:
+          ref: ${{ github.ref }}
+
+  repo-deploy:
+    name: Git commited new manifest of flux
+    runs-on: ubuntu-latest
+    needs: ecr-build-push
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v1"
+        with:
+          ref: ${{ github.ref }}
+      - name: Get git commit shortsha
+        id: vars
+        run: |
+          echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
       - name: Get log commit
         id: log
         run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
-      - name: show commit message
-        run: echo $(git log --no-merges -1 --oneline)
-      - name: Dump GitHub context
-        if: "contains(steps.log.outputs.message, 'deploy')"
+      - name: Add in Git infra new manifest
+        if: "contains(steps.log.outputs.message, '/deploy')"
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          HEAD_BRANCH: ${{ github.head_ref }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-          HEAD_BRANCH_REF=$(echo ${HEAD_BRANCH#refs/heads/} | sed 's/\//_/g')
-          echo "BASE_BRANCH: [${BASE_BRANCH}] HEAD_BRANCH: [${HEAD_BRANCH_REF}]"
+          COMMIT_MSG: "Generated new manifest"
+          SHA: ${{ steps.vars.outputs.sha_short }}
+          BRANCH_NAME: ${{github.ref}}
+        run: ./.github/workflows/scripts/git_add_infra.sh
