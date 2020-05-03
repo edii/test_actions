@@ -14,15 +14,15 @@ else
 fi
 
 echo "Start rn ReleaseHelm of Flux..."
-echo "\n[${BRANCH_NAME}]::(${MSG})."
+echo "[${BRANCH_NAME}]::(${MSG})."
 
 if [[  -z "${BRANCH_NAME}" ]]; then
-  echo "\nBRANCH_NAME can not be empty!"
+  echo "BRANCH_NAME can not be empty!"
   exit 1
 fi
 
 if [[  -z "${GITHUB_TOKEN}" ]]; then
-  echo "\nSome default value because GITHUB_TOKEN is undefined"
+  echo "Some default value because GITHUB_TOKEN is undefined"
   exit 1
 else
   GIT_TOKEN="${GITHUB_TOKEN}"
@@ -41,7 +41,7 @@ git config --global alias.merge-n-push '!f() { git pull --no-edit && git push; }
 
 cd ~/
 if [[ -d ./heals.infra ]]; then
-    echo "\n[heals.infra] directory exists, now removed."
+    echo "[heals.infra] directory exists, now removed."
     rm -rf ./heals.infra
 fi
 
@@ -55,10 +55,10 @@ cd k8s/releases
 CURR_DIR=dev-${BRANCH}
 
 if [ ! -d ./${CURR_DIR} ]; then
-    echo "\nNot found release dir [${CURR_DIR}]"
+    echo "Not found release dir [${CURR_DIR}]"
     exit 0
 else
-    echo "\nRemove current release Dir [${CURR_DIR}]"
+    echo "Remove current release Dir [${CURR_DIR}]"
     rm -rf ./${CURR_DIR}
 fi
 
