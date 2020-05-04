@@ -68,6 +68,9 @@ function install_yq() {
 	if ! command -v "${yq_path}" >/dev/null; then
 		die "Cannot not get ${yq_path} executable"
 	fi
+
+	echo "YQ PAtch: [${yq_path}]"
+	${yq_path} -h
 }
 
 install_yq
