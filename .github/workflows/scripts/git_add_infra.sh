@@ -163,6 +163,7 @@ if [ ! -f ./${RELEASE_PATCH} ]; then
 fi
 
 function gitPush() {
+    echo "Git rebase and push..."
     git add .
     git commit -a -m "$1"
     git rebase-n-push
