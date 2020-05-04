@@ -22,6 +22,8 @@ function install_yq() {
 
 	read -r -a sysInfo <<< "$(uname -sm)"
 
+    echo "Install: ${sysInfo[0]}...."
+
 	case "${sysInfo[0]}" in
 	"Linux" | "Darwin")
 		goos="${sysInfo[0],}"
