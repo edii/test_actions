@@ -52,14 +52,15 @@ echo "\nGit clone ${GIT_REPOSITORY}..."
 git clone -b master https://_:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git .
 cd k8s/releases
 
-CURR_DIR=dev-${BRANCH}
+RELEASE_FILE_NAME=heals-tetris-${BRANCH}-api.yaml
+RELEASE_PATCH=dev/${RELEASE_FILE_NAME}
 
-if [ ! -d ./${CURR_DIR} ]; then
-    echo "Not found release dir [${CURR_DIR}]"
+if [ ! -f ./${RELEASE_PATCH} ]; then
+    echo "Not found release dir [${RELEASE_PATCH}]"
     exit 0
 else
-    echo "Remove current release Dir [${CURR_DIR}]"
-    rm -rf ./${CURR_DIR}
+    echo "Remove current release Dir [${RELEASE_PATCH}]"
+    rm -rf ./${RELEASE_PATCH}
 fi
 
 function gitPush() {
