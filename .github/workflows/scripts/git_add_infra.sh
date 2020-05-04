@@ -4,11 +4,70 @@
 set -o errexit
 
 ## Install yq
-echo "Install package YQ..."
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-sudo add-apt-repository ppa:rmescandon/yq
-sudo apt update
-sudo apt install yq -y
+# If we fail for any reason a message will be displayed
+die() {
+	msg="$*"
+	echo "ERROR: $msg" >&2
+	exit 1
+}
+
+# Install the yq yaml query package from the mikefarah github repo
+# Install via binary download, as we may not have golang installed at this point
+function install_yq() {
+	GOPATH=${GOPATH:-${HOME}/go}
+	local yq_path="${GOPATH}/bin/yq"
+	local yq_pkg="github.com/mikefarah/yq"
+	[ -x  "${GOPATH}/bin/yq" ] && return
+
+	read -r -a sysInfo <<< "$(uname -sm)"
+
+	case "${sysInfo[0]}" in
+	"Linux" | "Darwin")
+		goos="${sysInfo[0],}"
+		;;
+	"*")
+		die "OS ${sysInfo[0]} not supported"
+		;;
+	esac
+
+	case "${sysInfo[1]}" in
+	"aarch64")
+		goarch=arm64
+		;;
+	"ppc64le")
+		goarch=ppc64le
+		;;
+	"x86_64")
+		goarch=amd64
+		;;
+	"s390x")
+		goarch=s390x
+		;;
+	"*")
+		die "Arch ${sysInfo[1]} not supported"
+		;;
+	esac
+
+	mkdir -p "${GOPATH}/bin"
+
+	# Check curl
+	if ! command -v "curl" >/dev/null; then
+		die "Please install curl"
+	fi
+
+	local yq_version=3.3.0
+
+	local yq_url="https://${yq_pkg}/releases/download/${yq_version}/yq_${goos}_${goarch}"
+	curl -o "${yq_path}" -LSsf ${yq_url}
+	[ $? -ne 0 ] && die "Download ${yq_url} failed"
+	chmod +x ${yq_path}
+
+	if ! command -v "${yq_path}" >/dev/null; then
+		die "Cannot not get ${yq_path} executable"
+	fi
+}
+
+install_yq
 
 GIT_REPOSITORY="edii/test_repo"
 GIT_USER_EMAIL="edii87shadow@gmail.com"
@@ -49,7 +108,8 @@ git config --global user.email "${GIT_USER_EMAIL}"
 git config --global user.name "${GIT_USER_NAME}"
 
 # Auto merged changed
-git config --global alias.merge-n-push '!f() { git pull --no-edit && git push; }; f'
+#git config --global alias.merge-n-push '!f() { git pull --no-edit && git push; }; f'
+git config --global alias.rebase-n-push '!f() { git pull --rebase origin master && git push; }; f'
 
 cd ~/
 if [[ -d ./heals.infra ]]; then
@@ -66,18 +126,13 @@ echo "GITHUB_TOKEN: [${GITHUB_TOKEN}]."
 git clone -b master https://_:${GIT_TOKEN}@github.com/${GIT_REPOSITORY}.git .
 cd k8s/releases
 
-RELEASE_DIR=dev-${BRANCH}
 RELEASE_FILE_NAME=heals-tetris-${BRANCH}-api.yaml
-RELEASE_PATCH=${RELEASE_DIR}/${RELEASE_FILE_NAME}
+RELEASE_PATCH=dev/${RELEASE_FILE_NAME}
 TEMPLATE_FILE_PATCH=dev/heals-tetris-api.yaml
 
 if [ ! -f ./${TEMPLATE_FILE_PATCH} ]; then
     echo "Not found template file [${TEMPLATE_FILE_PATCH}]."
     exit 1
-fi
-
-if [ ! -d ./${RELEASE_DIR} ]; then
-    mkdir ./${RELEASE_DIR}
 fi
 
 # check and remove file
@@ -104,7 +159,7 @@ fi
 function gitPush() {
     git add .
     git commit -a -m "$1"
-    git merge-n-push
+    git rebase-n-push
 }
 
 gitPush "${MSG}"
