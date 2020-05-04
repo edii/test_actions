@@ -14,6 +14,7 @@ die() {
 # Install the yq yaml query package from the mikefarah github repo
 # Install via binary download, as we may not have golang installed at this point
 function install_yq() {
+    echo "Install YQ..."
 	GOPATH=${GOPATH:-${HOME}/go}
 	local yq_path="${GOPATH}/bin/yq"
 	local yq_pkg="github.com/mikefarah/yq"
