@@ -70,10 +70,12 @@ function install_yq() {
 	fi
 
 	echo "YQ PAtch: [${yq_path}]"
-	${yq_path} -h
 }
 
 install_yq
+
+GOPATH=${GOPATH:-${HOME}/go}
+YQ_BIN="${GOPATH}/bin/yq"
 
 GIT_REPOSITORY="edii/test_repo"
 GIT_USER_EMAIL="edii87shadow@gmail.com"
@@ -153,13 +155,13 @@ if [ ! -f ./${RELEASE_PATCH} ]; then
 
   echo -e "Generating a ${RELEASE_PATCH} file"
 
-  yq w -i ./${RELEASE_PATCH} metadata.name tetris-${BRANCH}
-  yq w -i ./${RELEASE_PATCH} 'metadata.annotations."filter.fluxcd.io/chart-image"' global:${BRANCH}_${SHA}
-  yq w -i ./${RELEASE_PATCH} spec.releaseName heals-tetris-${BRANCH}-scheduler
-  yq w -i ./${RELEASE_PATCH} spec.values.image.tag ${BRANCH}_${SHA}
-  yq w -i ./${RELEASE_PATCH} spec.values.fullnameOverride tetris-${BRANCH}
-  yq w -i ./${RELEASE_PATCH} spec.values.ingress.headers.enabled true
-  yq w -i ./${RELEASE_PATCH} spec.values.ingress.headers.route ${BRANCH}
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} metadata.name tetris-${BRANCH}
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} 'metadata.annotations."filter.fluxcd.io/chart-image"' global:${BRANCH}_${SHA}
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} spec.releaseName heals-tetris-${BRANCH}-scheduler
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} spec.values.image.tag ${BRANCH}_${SHA}
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} spec.values.fullnameOverride tetris-${BRANCH}
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} spec.values.ingress.headers.enabled true
+  ${YQ_BIN} w -i ./${RELEASE_PATCH} spec.values.ingress.headers.route ${BRANCH}
 fi
 
 function gitPush() {
