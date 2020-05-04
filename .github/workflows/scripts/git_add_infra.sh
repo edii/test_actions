@@ -7,7 +7,7 @@ set -o errexit
 # If we fail for any reason a message will be displayed
 die() {
 	msg="$*"
-	echo "ERROR: $msg" >&2
+	echo "ERROR: $msg"
 	exit 1
 }
 
