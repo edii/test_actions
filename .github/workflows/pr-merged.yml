@@ -15,7 +15,7 @@ jobs:
         id: log
         run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
       - name: Remove in git infra manifest
-        if: "contains(steps.log.outputs.message, '/deploy')"
+        if: contains(steps.log.outputs.message, '/deploy') || contains(github.event.comment.body, '/deploy')
         env:
           GITHUB_TOKEN: ${{secrets.PAT_FOR_PUSH}}
           COMMIT_MSG: "Clear branch manifest"
@@ -35,6 +35,6 @@ jobs:
         id: log
         run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
       - name: Echo open deploy
-        if: "contains(steps.log.outputs.message, '/deploy')"
+        if: contains(steps.log.outputs.message, '/deploy') || contains(github.event.comment.body, '/deploy')
         run: |
           echo "Open DEPLOY -"
