@@ -11,6 +11,13 @@ jobs:
         uses: "actions/checkout@v1"
         with:
           ref: ${{ github.ref }}
+      - name: Get log commit
+        id: log
+        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
+      - name: Echo open deploy
+        if: "contains(steps.log.outputs.message, '/deploy')"
+        run: |
+          echo "Open DEPLOY"
 
   repo-deploy:
     name: Git commited new manifest of flux
