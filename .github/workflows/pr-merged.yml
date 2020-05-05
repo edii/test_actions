@@ -21,3 +21,20 @@ jobs:
           COMMIT_MSG: "Clear branch manifest"
           BRANCH_NAME: ${{ github.head_ref }}
         run: ./.github/workflows/scripts/git_rm_infra.sh
+
+  ecr-rm-build:
+    name: Ecr remove build
+    runs-on: ubuntu-latest
+    needs: merge-PR
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v1"
+        with:
+          ref: ${{ github.ref }}
+      - name: Get log commit
+        id: log
+        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
+      - name: Echo open deploy
+        if: "contains(steps.log.outputs.message, '/deploy')"
+        run: |
+          echo "Open DEPLOY"
