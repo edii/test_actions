@@ -17,3 +17,14 @@ jobs:
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
           #BRANCH_NAME=${GITHUB_REF#refs/heads/}
           echo "Ok RUN! [${BRANCH_NAME}]"
+
+  ecr-push:
+    if: github.ref == 'refs/heads/master' ||  github.head_ref == 'refs/heads/master'
+    name: AWS ECR push
+    runs-on: ubuntu-latest
+    needs: main
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v1"
+        with:
+          ref: ${{ github.ref }}
