@@ -26,6 +26,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa.pub
       - name: Clone migrations
         run: |
+          git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
 
           if [[ ! -e 'migrations' ]]; then
               mkdir 'migrations'
