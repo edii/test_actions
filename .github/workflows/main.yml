@@ -24,7 +24,7 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
-      - name: "echo message"
+      - name: Clone migrations
         run: |
           git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
 
@@ -38,7 +38,9 @@ jobs:
           cd migrations
           git clone git@github.com:edii/test_repo.git .
           ls -al
-
+      - name: "echo message"
+        run: |
+          ls -al
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
           #BRANCH_NAME=${GITHUB_REF#refs/heads/}
           echo "Ok RUN! [${BRANCH_NAME}]"
