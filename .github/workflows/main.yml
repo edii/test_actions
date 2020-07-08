@@ -4,6 +4,8 @@ on: push
 
 jobs:
   main:
+    env:
+      GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}
     if: "github.ref == 'refs/heads/master'"
     name: "test commit deploy or ci skip"
     runs-on: "ubuntu-latest"
@@ -14,6 +16,8 @@ jobs:
           ref: ${{ github.ref }}
       - name: "echo message"
         run: |
+          git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+
           if [[ ! -e 'migrations' ]]; then
               mkdir 'migrations'
           elif [[ ! -d 'migrations' ]]; then
