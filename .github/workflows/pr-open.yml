@@ -30,7 +30,8 @@ jobs:
               rpm -ivh apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
           fi
 
-          ldconfig
+          sudo ldconfig
+          exit 0
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v1
         with:
