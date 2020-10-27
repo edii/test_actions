@@ -13,25 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Pulsar install
-        run: |
-          # install pulsar client
-          sudo apt-get update
-          sudo apt-get install -y git wget make gcc rpm
-          wget https://archive.apache.org/dist/pulsar/pulsar-2.6.1/RPMS/apache-pulsar-client-2.6.1-1.x86_64.rpm
-          wget https://archive.apache.org/dist/pulsar/pulsar-2.6.1/RPMS/apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
-
-          sudo rpm -qa apache-pulsar-client
-          if !(rpm -qa apache-pulsar-client | grep -q apache-pulsar-client-2.6.1-1.x86_64); then
-              sudo rpm -ivh apache-pulsar-client-2.6.1-1.x86_64.rpm
-          fi
-
-          sudo rpm -qa apache-pulsar-client
-          if !(rpm -qa apache-pulsar-client-devel | grep -q apache-pulsar-client-devel-2.6.1-1.x86_64); then
-              sudo rpm -ivh apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
-          fi
-
-          sudo ldconfig
-          exit 0
+        run: sudo ./.github/workflows/scripts/pulsar.sh
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v1
         with:
