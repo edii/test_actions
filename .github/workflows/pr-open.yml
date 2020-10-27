@@ -15,19 +15,19 @@ jobs:
       - name: Pulsar install
         run: |
           # install pulsar client
-          apt-get update
-          apt-get install -y git wget make gcc rpm
+          sudo apt-get update
+          sudo apt-get install -y git wget make gcc rpm
           wget https://archive.apache.org/dist/pulsar/pulsar-2.6.1/RPMS/apache-pulsar-client-2.6.1-1.x86_64.rpm
           wget https://archive.apache.org/dist/pulsar/pulsar-2.6.1/RPMS/apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
 
-          rpm -qa apache-pulsar-client
+          sudo rpm -qa apache-pulsar-client
           if !(rpm -qa apache-pulsar-client | grep -q apache-pulsar-client-2.6.1-1.x86_64); then
-              rpm -ivh apache-pulsar-client-2.6.1-1.x86_64.rpm
+              sudo rpm -ivh apache-pulsar-client-2.6.1-1.x86_64.rpm
           fi
 
-          rpm -qa apache-pulsar-client
+          sudo rpm -qa apache-pulsar-client
           if !(rpm -qa apache-pulsar-client-devel | grep -q apache-pulsar-client-devel-2.6.1-1.x86_64); then
-              rpm -ivh apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
+              sudo rpm -ivh apache-pulsar-client-devel-2.6.1-1.x86_64.rpm
           fi
 
           sudo ldconfig
@@ -38,44 +38,44 @@ jobs:
           version: v1.29
           args: --timeout=2m
 
-  ecr-build-push:
-    name: Git pull_request opened
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout source code"
-        uses: "actions/checkout@v1"
-        with:
-          ref: ${{ github.ref }}
-      - name: Get log commit
-        id: log
-        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
-      - name: Echo open deploy
-        if: "contains(steps.log.outputs.message, '/deploy')"
-        run: |
-          echo "Open DEPLOY"
-
-  repo-deploy:
-    name: Git commited new manifest of flux
-    runs-on: ubuntu-latest
-    needs: ecr-build-push
-    steps:
-      - name: "Checkout source code"
-        uses: "actions/checkout@v1"
-        with:
-          ref: ${{ github.ref }}
-      - name: Get git commit shortsha
-        id: vars
-        run: |
-          echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
-      - name: Get log commit
-        id: log
-        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
-      - name: Add in Git infra new manifest
-        if: "contains(steps.log.outputs.message, '/deploy')"
-        env:
-#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          GITHUB_TOKEN: ${{secrets.PAT_FOR_PUSH}}
-          COMMIT_MSG: "Generated new manifest"
-          SHA: ${{ steps.vars.outputs.sha_short }}
-          BRANCH_NAME: ${{ github.head_ref }}
-        run: ./.github/workflows/scripts/git_add_infra.sh
+#  ecr-build-push:
+#    name: Git pull_request opened
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: "Checkout source code"
+#        uses: "actions/checkout@v1"
+#        with:
+#          ref: ${{ github.ref }}
+#      - name: Get log commit
+#        id: log
+#        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
+#      - name: Echo open deploy
+#        if: "contains(steps.log.outputs.message, '/deploy')"
+#        run: |
+#          echo "Open DEPLOY"
+#
+#  repo-deploy:
+#    name: Git commited new manifest of flux
+#    runs-on: ubuntu-latest
+#    needs: ecr-build-push
+#    steps:
+#      - name: "Checkout source code"
+#        uses: "actions/checkout@v1"
+#        with:
+#          ref: ${{ github.ref }}
+#      - name: Get git commit shortsha
+#        id: vars
+#        run: |
+#          echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
+#      - name: Get log commit
+#        id: log
+#        run: echo "::set-output name=message::$(git log --no-merges -1 --oneline)"
+#      - name: Add in Git infra new manifest
+#        if: "contains(steps.log.outputs.message, '/deploy')"
+#        env:
+##          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+#          GITHUB_TOKEN: ${{secrets.PAT_FOR_PUSH}}
+#          COMMIT_MSG: "Generated new manifest"
+#          SHA: ${{ steps.vars.outputs.sha_short }}
+#          BRANCH_NAME: ${{ github.head_ref }}
+#        run: ./.github/workflows/scripts/git_add_infra.sh
