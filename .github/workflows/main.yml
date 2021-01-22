@@ -16,6 +16,13 @@ jobs:
         uses: "actions/checkout@v1"
         with:
           ref: ${{ github.ref }}
+      - name: Test lambda
+        env:
+          AWS_REGION: 'eu-west-1'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          sudo ./.github/workflows/scripts/lambda-clear-storage.sh -n 10 -l test
       - name: Init git
         run: |
           mkdir -p ~/.ssh
