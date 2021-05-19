@@ -1,3 +1,4 @@
+go staging
 # test_actions
 test_actions
 
