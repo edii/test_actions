@@ -12,17 +12,18 @@ jobs:
     name: "configmaps"
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
       - name: Install helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
-      - name: Check out repository code
-        uses: actions/checkout@v2
       - name: Helm upgrade configmaps
 #        working-directory: ./k8s
         run: |
           ls .
+          helm version
 
 #      - name: "Checkout source code"
 #        uses: "actions/checkout@v1"
