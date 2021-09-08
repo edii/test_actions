@@ -8,9 +8,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
-    if: "github.ref == 'refs/heads/master'"
-    name: "test commit deploy or ci skip"
-    runs-on: "ubuntu-latest"
+#    if: "github.ref == 'refs/heads/master'"
+    name: "configmaps"
+    runs-on: ubuntu-latest
     steps:
       - name: Install helm
         run: |
