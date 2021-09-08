@@ -18,8 +18,9 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
       - name: Helm upgrade configmaps
-        uses: ./k8s
+        working-directory: ./k8s
         run: |
+          ls
           ./k8s
           ls
 
