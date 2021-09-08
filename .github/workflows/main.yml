@@ -12,44 +12,55 @@ jobs:
     name: "test commit deploy or ci skip"
     runs-on: "ubuntu-latest"
     steps:
-      - name: "Checkout source code"
-        uses: "actions/checkout@v1"
-        with:
-          ref: ${{ github.ref }}
-      - name: Test lambda
-        env:
-          AWS_REGION: 'eu-west-1'
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: ./.github/workflows/scripts/lambda-clear-storage.sh -n 10 -l test
-      - name: Init git
+      - name: Install helm
         run: |
-          mkdir -p ~/.ssh
-          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
-          echo "${SSH_PUB_KEY}" > ~/.ssh/id_rsa.pub
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa.pub
-      - name: Clone migrations
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+      - name: Helm upgrade configmaps
+        uses: ./k8s
         run: |
-          git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          ./k8s
+          ls
 
-          if [[ ! -e 'migrations' ]]; then
-              mkdir 'migrations'
-          elif [[ ! -d 'migrations' ]]; then
-              echo "migrations already exists but is not a directory"
-              exit 1
-          fi
-
-          cd migrations
-          git clone git@github.com:edii/test_repo.git .
-          ls -al
-      - name: "echo message"
-        run: |
-          ls -al ./migrations
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
-          #BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "Ok RUN! [${BRANCH_NAME}]"
+#      - name: "Checkout source code"
+#        uses: "actions/checkout@v1"
+#        with:
+#          ref: ${{ github.ref }}
+#      - name: Test lambda
+#        env:
+#          AWS_REGION: 'eu-west-1'
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        run: ./.github/workflows/scripts/lambda-clear-storage.sh -n 10 -l test
+#      - name: Init git
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+#          echo "${SSH_PUB_KEY}" > ~/.ssh/id_rsa.pub
+#          ssh-keyscan github.com >> ~/.ssh/known_hosts
+#          chmod 600 ~/.ssh/id_rsa
+#          chmod 600 ~/.ssh/id_rsa.pub
+#      - name: Clone migrations
+#        run: |
+#          git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+#
+#          if [[ ! -e 'migrations' ]]; then
+#              mkdir 'migrations'
+#          elif [[ ! -d 'migrations' ]]; then
+#              echo "migrations already exists but is not a directory"
+#              exit 1
+#          fi
+#
+#          cd migrations
+#          git clone git@github.com:edii/test_repo.git .
+#          ls -al
+#      - name: "echo message"
+#        run: |
+#          ls -al ./migrations
+#          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
+#          #BRANCH_NAME=${GITHUB_REF#refs/heads/}
+#          echo "Ok RUN! [${BRANCH_NAME}]"
 
   ecr-push:
     if: github.ref == 'refs/heads/master' ||  github.head_ref == 'refs/heads/master'
