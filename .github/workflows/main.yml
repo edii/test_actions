@@ -18,9 +18,9 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
       - name: Helm upgrade configmaps
-        working-directory: ./k8s
+#        working-directory: ./k8s
         run: |
-          ls
+          ls ${{ github.workspace }}
 
 #      - name: "Checkout source code"
 #        uses: "actions/checkout@v1"
