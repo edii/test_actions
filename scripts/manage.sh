@@ -61,24 +61,6 @@ cmd_publish() {
   local image_version=$1; shift || error "Missing target (<image_version>) $USAGE"
   [ ! -z "$image_version" ] || error "Not empty image_version"
 
-  local pre_release
-
-  while [ $# -ne 0 ]; do
-     case "$1" in
-      --pre_release)
-        pre_release=true
-        shift 1
-        ;;
-      *)
-        error "Unknown option: $1"
-        ;;
-      esac
-    done
-
-  if [ "$pre_release" = "true" ]; then
-    image_version="$image_version-dev.$(git rev-parse --short HEAD)"
-  fi
-
   local versioned_image=$image_name:$image_version
   local latest_image="$image_name" # don't include ":latest", that's assumed here
   local build_arch="linux/amd64,linux/arm64"
@@ -105,12 +87,7 @@ cmd_publish() {
 
   echo "image_name $image_name"
   echo "versioned_image $versioned_image"
-
-  if [ "$pre_release" = "true" ]; then
-    echo "will skip updating latest_image $latest_image tag due to pre_release"
-  else
-    echo "latest_image $latest_image"
-  fi
+  echo "latest_image $latest_image"
 
   _error_if_tag_exists "$versioned_image"
 
@@ -120,19 +97,14 @@ cmd_publish() {
     echo "Publishing new version ($arch_versioned_image) from $path"
     docker buildx build -t $arch_versioned_image --platform $arch --push $path
     docker manifest create $versioned_image --amend $arch_versioned_image
-
-    if [ "$pre_release" != "true" ]; then
-      docker manifest create $latest_image --amend $arch_versioned_image
-    fi
+    docker manifest create $latest_image --amend $arch_versioned_image
   done
 
   docker manifest push $versioned_image
   docker manifest rm $versioned_image
 
-  if [ "$pre_release" != "true" ]; then
-    docker manifest push $latest_image
-    docker manifest rm $latest_image
-  fi
+  docker manifest push $latest_image
+  docker manifest rm $latest_image
 
   # delete the temporary image tags made with arch_versioned_image
   sleep 10
@@ -155,7 +127,7 @@ cmd_publish() {
   DOCKERHUB_RESPONSE_CODE=$(curl --silent --output /dev/null --write-out "%{http_code}" -H "Authorization: JWT ${DOCKER_TOKEN}" ${TAG_URL})
   set -x
   if [[ "${DOCKERHUB_RESPONSE_CODE}" == "404" ]]; then
-    echo "Tag ${image_version} was not registered on DockerHub for image ${image_name}, please try to bump the version again." && exit 1
+    error "Tag ${image_version} was not registered on DockerHub for image ${image_name}, please try to bump the version again."
   fi
 }
 
