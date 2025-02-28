@@ -43,4 +43,4 @@ runs:
           exit 1
         fi
 
-        sh ./scripts/manage.sh publish . ${{ inputs.repo }} ${{ inputs.tag }}
+        bash ./scripts/manage.sh publish . ${{ inputs.repo }} ${{ inputs.tag }}
