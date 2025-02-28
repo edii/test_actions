@@ -1,0 +1,42 @@
+name: "Core"
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  DOCKERHUB_REPO: edii87shadow/test-anonym
+
+jobs:
+  prepare:
+    name: Preparing build context
+    strategy:
+      matrix:
+        platform: [ ubuntu-latest ]
+    runs-on: ubuntu-latest
+    outputs:
+      RELEASE_VERSION: ${{ steps.image_tag.outputs.version }}
+    steps:
+      - name: Application Version
+        id: image_tag
+        shell: bash
+        run: |
+          SHORT_COMM=$(git rev-parse --short HEAD)
+          IMAGE_TAG="${SHORT_COMM}"
+          echo "version=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+  build-push:
+    name: run build-push action
+    if: ${{ (!contains(github.event.head_commit.message, '[ci skip]')) && (!contains(github.event.head_commit.message, '[no build]')) }}
+    needs: [ prepare ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Build [On merge to master]
+        uses: ./.github/actions/run-build
+        with:
+          repo: ${{ env.DOCKERHUB_REPO }}
+          tag: ${{ needs.prepare.outputs.RELEASE_VERSION }}
+          docker_hub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_hub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
