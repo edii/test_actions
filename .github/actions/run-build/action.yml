@@ -42,5 +42,8 @@ runs:
           echo "!!! TAG is empty"
           exit 1
         fi
+        
+        echo "ERRORRR!!"
+        exit 1
 
-        sh ./scripts/manage.sh publish . ${{ inputs.repo }} ${{ inputs.tag }}
+#        sh ./scripts/manage.sh publish . ${{ inputs.repo }} ${{ inputs.tag }}
