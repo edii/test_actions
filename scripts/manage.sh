@@ -9,8 +9,8 @@
 #
 #
 #
-# docker buildx build . --platform "linux/amd64,linux/arm64" --tag $IMAGE_NAME:latest  --push
-# docker buildx build . --platform "linux/amd64,linux/arm64" --tag $IMAGE_NAME:$VERSION  --push
+# docker buildx build . --platform "linux/amd64" --tag $IMAGE_NAME:latest  --push
+# docker buildx build . --platform "linux/amd64" --tag $IMAGE_NAME:$VERSION  --push
 
 
 USAGE="
@@ -63,7 +63,8 @@ cmd_publish() {
 
   local versioned_image=$image_name:$image_version
   local latest_image="$image_name" # don't include ":latest", that's assumed here
-  local build_arch="linux/amd64,linux/arm64"
+#  local build_arch="linux/amd64,linux/arm64"
+  local build_arch="linux/amd64"
 
   # learn about this version of Docker
   echo "--- docker info ---"
