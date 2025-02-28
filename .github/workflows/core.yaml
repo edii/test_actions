@@ -18,6 +18,10 @@ jobs:
     outputs:
       RELEASE_VERSION: ${{ steps.image_tag.outputs.version }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
       - name: Application Version
         id: image_tag
         shell: bash
